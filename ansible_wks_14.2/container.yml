@@ -1,0 +1,49 @@
+
+ - name : Configuration of docker dynamically
+   hosts : localhost
+   vars_prompt:
+          - name : container_name
+            prompt : "Enter name Of OS"
+            private : no
+          - name : port_no
+            prompt : "Enter Port No."
+            private : no
+   tasks : 
+          - name : Installing Docker SDK
+            block :
+                - command : pip3 show docker-py
+            rescue:
+                - pip :
+                    name : docker-py
+          
+          - name : start docker service
+            service:
+                 name : "docker"
+                 state : started
+                 enabled : yes
+
+          - name : Put SELinux in Permissive mode
+            ansible.posix.selinux:
+                    policy: targeted
+                    state : permissive
+
+                    #          - name : Pull Image
+                    #            community.docker.docker_image:
+                    #               name : localhost/centos_ssh6
+                    #               source : pull
+
+          - name : Launching a Docker_Container
+            command : docker run -dit --name {{ container_name }} -p {{ port_no }}:80 centos_ssh14_2
+            
+          - name : Retrieve IP of running Container
+            shell: docker inspect --format '{''{ .NetworkSettings.IPAddress }''}' {{ container_name }}
+            register : Container_ID
+
+          - name : Update Inventory File
+            blockinfile :
+                    path : /root/ip.txt
+                    block : |
+                         [docker]
+                         {{ Container_ID.stdout}} ansible_ssh_user=root ansible_ssh_pass=root ansible_connection=ssh
+
+

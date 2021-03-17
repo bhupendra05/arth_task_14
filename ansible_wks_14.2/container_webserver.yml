@@ -1,0 +1,14 @@
+- name : Configure web server in Docker Container
+  hosts : docker
+  tasks :
+          - name : Installing httpd services
+            package : 
+               name : httpd
+               state : present
+          - name : Creating HTML file inside Document Root 
+            copy :
+                    content : "<b><center>Webserver successully configured</center></b>"
+                    dest : "/var/www/html/index.html"
+          - name : Starting HTTPD Service
+            command : /usr/sbin/httpd
+

@@ -1,0 +1,17 @@
+---
+ - hosts : 192.168.43.95
+   vars_prompt :
+        - name : "ip1"
+          prompt : "Enter RedHat Ip"
+          private : no 
+        - name : "ip2"
+          prompt : "Enter Ubuntu Ip"
+          private : no
+   tasks : 
+     - name : update inventory file
+       blockinfile : 
+         path : /root/ip.txt
+         block : | 
+                 [target_14_3]
+                 {{ ip1 }} ansible_user=ec2-user ansible_ssh_private_key_file=/root/awsclass2020-1stkey.pem ansible_connection=ssh
+                 {{ ip2 }} ansible_user=ubuntu ansible_ssh_private_key_file=/root/awsclass2020-1stkey.pem ansible_connection=ssh
